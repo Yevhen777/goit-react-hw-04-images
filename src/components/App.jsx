@@ -136,7 +136,6 @@ ImageGallery.propTypes = {
 ButtonLoadMore.propTypes = {
   loadMore: PropTypes.func,
 };
-
 Modal.propTypes = {
   toggleModal: PropTypes.func,
 };
