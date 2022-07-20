@@ -1,14 +1,19 @@
+import style from './Gallery.module.css';
+import { BiSearch } from 'react-icons/bi';
+
 export const Searchbar = ({ handleSubmit }) => {
   return (
     <>
-      <header className="searchbar">
-        <form className="form" onSubmit={handleSubmit}>
-          <button className="submit" type="submit">
-            <span className="button-label">Search</span>
+      <header className={style.searchbar}>
+        <form className={style.form} onSubmit={handleSubmit}>
+          <button className={style.searchFormButton} type="submit">
+            <span className={style.buttonLabel}>
+              <BiSearch size="20px" />
+            </span>
           </button>
 
           <input
-            className="input"
+            className={style.searchFormInput}
             type="text"
             placeholder="Search images and photos"
             name="query"
