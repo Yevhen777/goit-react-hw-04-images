@@ -2,6 +2,7 @@ import { ImageGalleryItem } from '../components/ImageGalleryItem';
 import style from './Gallery.module.css';
 
 export const ImageGallery = ({ imgCard, setBigImg }) => {
+  console.log('object');
   return (
     <ul className={style.imageGallery}>
       {imgCard.map(img => {
