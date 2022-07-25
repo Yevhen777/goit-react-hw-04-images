@@ -9,7 +9,8 @@ import style from './Gallery.module.css';
 import { ImageGallery } from 'components/ImageGallery';
 import { ButtonLoadMore } from 'components/ButtonLoadMore';
 import { Modal } from 'components/Modal';
-import axios from 'axios';
+import { getImages } from '../getImages';
+
 import PropTypes from 'prop-types';
 
 export class App extends Component {
@@ -75,19 +76,10 @@ export class App extends Component {
 
   fetchItems = async () => {
     this.setState({ onLoading: true });
-
-    const myKey = '27696674-0a1668506489034d568e98c79';
-    const query = this.state.query;
-    const page = this.state.page;
-
-    const response = await axios
-      .get(
-        `https://pixabay.com/api/?q=${query}&page=${page}&key=${myKey}&image_type=photo&orientation=horizontal&per_page=12`
-      )
-
+    getImages(this.state.query, this.state.page)
       .then(images => {
         return this.setState(prevState => ({
-          imgCard: [...prevState.imgCard, ...images.data.hits],
+          imgCard: [...prevState.imgCard, ...images],
         }));
       })
       .catch(error => new Error(error))
