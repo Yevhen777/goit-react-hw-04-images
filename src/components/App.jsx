@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { Searchbar } from 'components/Searchbar';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -13,57 +13,36 @@ import { getImages } from '../getImages';
 
 import PropTypes from 'prop-types';
 
-export class App extends Component {
-  state = {
-    imgCard: [],
-    onLoading: false,
-    query: '',
-    page: 1,
-    showModal: false,
-    bigImg: '',
+export function App() {
+  const [imgCard, setImgCard] = useState([]);
+  const [onLoading, setOnLoading] = useState(false);
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [showModal, setShowModal] = useState(false);
+  const [bigImg, setMyBigImg] = useState('');
+
+  useEffect(() => {
+    fetchItems(page, query);
+  }, [page, query]);
+
+  const setBigImg = img => {
+    setMyBigImg(img);
+    setShowModal(true);
   };
 
-  componentDidUpdate = (_, prevState) => {
-    if (
-      prevState.page !== this.state.page ||
-      prevState.query !== this.state.query
-    ) {
-      this.fetchItems();
-    }
+  const loadMore = () => {
+    setPage(prevState => prevState + 1);
   };
 
-  setBigImg = img => {
-    this.setState({ bigImg: img, showModal: true });
-    console.log('img :>> ', img);
-    this.openModal();
-  };
-
-  loadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
-    console.log('this.state.page :>> ', this.state.page);
-  };
-
-  handleChange = e => {
-    if (e.target.value !== this.state.query) {
-      this.setState({ query: e.target.value.toLowerCase() });
-    }
-  };
-
-  handleSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault();
 
     const elForm = e.target.elements.query.value;
-    if (
-      this.state.query !== elForm &&
-      e.target.elements.query.value.trim() !== ''
-    ) {
-      this.setState({
-        page: 1,
-        query: elForm,
-        imgCard: [],
-      });
+    if (query !== elForm && e.target.elements.query.value.trim() !== '') {
+      setPage(1);
+      setQuery(elForm);
+      setImgCard([]);
+
       e.target.reset();
       return;
     }
@@ -74,46 +53,37 @@ export class App extends Component {
     }
   };
 
-  fetchItems = async () => {
-    this.setState({ onLoading: true });
-    getImages(this.state.query, this.state.page)
+  const fetchItems = async (newPage, newQuery) => {
+    setOnLoading(true);
+    getImages(newQuery, newPage)
       .then(images => {
-        return this.setState(prevState => ({
-          imgCard: [...prevState.imgCard, ...images],
-        }));
+        return setImgCard(prevState => [...prevState, ...images]);
       })
       .catch(error => new Error(error))
       .finally(() => {
-        this.setState({ onLoading: false });
+        setOnLoading(false);
       });
   };
-  toggleModal = () => {
-    this.setState(state => ({
-      showModal: !state.showModal,
-    }));
+
+  const toggleModal = () => {
+    setShowModal(state => !state);
   };
 
-  render() {
-    return (
-      <div className={style.app}>
-        <Searchbar handleSubmit={this.handleSubmit} />
-        <ImageGallery imgCard={this.state.imgCard} setBigImg={this.setBigImg} />
-        {this.state.imgCard.length > 0 && (
-          <ButtonLoadMore loadMore={this.loadMore} />
-        )}
-        {this.state.onLoading && (
-          <Circles color="#00BFFF" height={80} width={80} />
-        )}
-        {this.state.showModal && (
-          <Modal toggleModal={this.toggleModal}>
-            <img src={this.state.bigImg} alt="bigImage" />
-          </Modal>
-        )}
+  return (
+    <div className={style.app}>
+      <Searchbar handleSubmit={handleSubmit} />
+      <ImageGallery imgCard={imgCard} setBigImg={setBigImg} />
+      {imgCard.length > 0 && <ButtonLoadMore loadMore={loadMore} />}
+      {onLoading && <Circles color="#00BFFF" height={80} width={80} />}
+      {showModal && (
+        <Modal toggleModal={toggleModal}>
+          <img src={bigImg} alt="bigImage" />
+        </Modal>
+      )}
 
-        <ToastContainer autoClose={5000} />
-      </div>
-    );
-  }
+      <ToastContainer autoClose={5000} />
+    </div>
+  );
 }
 
 Searchbar.propTypes = {
